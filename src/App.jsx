@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import fecthData from "./utility/fetchData";
-import { TextField, Typography } from '@mui/material'
+import { TextField, Typography } from "@mui/material";
 
 const App = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
-  const [searchInput, setSearchInput] = useState('')
-  const [fetchedTracks, setFetchedTracks] = useState([])
+  const [searchInput, setSearchInput] = useState("");
+  const [fetchedTracks, setFetchedTracks] = useState([]);
 
   useEffect(() => {
     async function getAccessToken() {
@@ -36,13 +36,12 @@ const App = () => {
       } catch (err) {
         console.log(err);
       }
-    }  
+    }
 
     getAccessToken();
   }, []);
 
   const getTrack = async (searchInput) => {
-    const trackName = 'hello'
     const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(
       searchInput
     )}&type=track`;
@@ -50,37 +49,44 @@ const App = () => {
     const options = {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     };
 
     const res = await fecthData({ url, options, isFetching, setIsFetching });
 
     if (res.ok) {
       const data = await res.json();
-      console.log(data.tracks.items)
+      console.log(data.tracks.items);
       setFetchedTracks(data.tracks.items);
     }
   };
 
   const handleSearchInputChange = (e) => {
-    setSearchInput(e.target.value)
-  }
+    setSearchInput(e.target.value);
+  };
 
   const handleSearchKeyDown = (e) => {
-    console.log(e.key)
-    if (e.key === 'Enter') {
-      getTrack(searchInput)
-      setSearchInput('')
+    console.log(e.key);
+    if (e.key === "Enter") {
+      getTrack(searchInput);
+      setSearchInput("");
     }
-  }
+  };
 
-  return <div>
-    <TextField onChange={handleSearchInputChange} onKeyDown={handleSearchKeyDown}></TextField>
-    <Typography variant="h4">{
-      fetchedTracks.map((track, index) => <div key={index}>{track.href}</div>)
-    }</Typography>
-  </div>;
+  return (
+    <div className="bg-red-500">
+      <TextField
+        onChange={handleSearchInputChange}
+        onKeyDown={handleSearchKeyDown}
+      ></TextField>
+      <Typography variant="h4">
+        {fetchedTracks.map((track, index) => (
+          <div key={index}>{track.href}</div>
+        ))}
+      </Typography>
+    </div>
+  );
 };
 
 export default App;
