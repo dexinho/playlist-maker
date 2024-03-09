@@ -21,7 +21,7 @@ const Track = ({ tracks, onTrackAdd }) => {
           className="flex flex-col gap-4"
           onClick={() => handleTrackClick(track)}
         >
-          <Box className="w-full h-20 grid grid-cols-2 gap-4 border">
+          <Box className="w-full h-20 grid grid-cols-2 gap-4">
             <img
               src={track.album.images[0].url}
             ></img>
@@ -32,7 +32,7 @@ const Track = ({ tracks, onTrackAdd }) => {
             </div>
           </Box>
 
-          <div className="w-full border">
+          <div className="w-full">
             {track.preview_url && (
               <audio controls src={track.preview_url} className="w-full h-4"></audio>
             )}
