@@ -1,34 +1,48 @@
-import { Button } from "@mui/material";
-import React from "react";
+import { Button, Box, TextField } from "@mui/material";
+import React, { useRef } from "react";
 
-const Playlist = ({ playlist, onTrackDelete }) => {
+const Playlist = ({ playlist, onTrackDelete, onPlaylistUpload }) => {
+  const playlistNameRef = useRef(null);
+
   if (playlist.length < 1) return <div>No tracks selected.</div>;
 
   const handleTrackClick = (trackId) => {
     onTrackDelete(trackId);
   };
 
+  const handlePlaylistUpload = () => {
+    onPlaylistUpload(playlistNameRef.current.value);
+  };
+
   return (
-    <div className="flex flex-col gap-4 p-4 border">
-      <div>PLAYLIST</div>
-      {playlist.map((track) => (
+    <Box className="flex flex-col gap-4 p-4">
+      <TextField
+        ref={playlistNameRef}
+        placeholder="PLAYLIST NAME"
+        className="w-full"
+      ></TextField>
+      {playlist.map((track, index) => (
         <Button
-          key={track.id}
+          key={index}
           variant="contained"
           color="secondary"
           className="flex flex-col p-2 border"
           onClick={() => handleTrackClick(track.id)}
         >
-          <div>Artist: {track.artist}</div>
-          <div>Song Name: {track.songName}</div>
+          <Box>Artist: {track.artist_name}</Box>
+          <Box>Song Name: {track.song_name}</Box>
         </Button>
       ))}
       {playlist.length > 0 && (
-        <Button variant="contained" color="success">
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handlePlaylistUpload}
+        >
           UPLOAD
         </Button>
       )}
-    </div>
+    </Box>
   );
 };
 
