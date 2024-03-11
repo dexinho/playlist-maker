@@ -1,16 +1,16 @@
-const fecthData = async ({isFetching, setIsFetching, url, options}) => {
-  if (isFetching) return
+const fecthData = async ({ isFetching, setIsFetching, url, options }) => {
+  if (isFetching) return;
 
   try {
-    setIsFetching(true)
-    const response = await fetch(url, options)
+    setIsFetching(true);
+    const response = await fetch(url, options);
 
-    return response
+    return response;
   } catch (err) {
-    console.log(err)
+    console.log(err);
   } finally {
-    setIsFetching(false)
+    setIsFetching(false);
   }
-}
+};
 
-export default fecthData
+export default fecthData;
