@@ -11,8 +11,6 @@ import getUserProfile from "./utility/getUserProfile";
 import getAccessTokenForPlaylist from "./utility/getAccessTokenForPlaylist";
 
 const user_id = "31fnwumqzhtohbvkxcjglctzgzpq";
-const code =
-  "AQDeGHPncLHuA4a8mf-ScnA1uWh6lUZkJnHx9qPX3E1lQ9BYkSOjxOtINUe70d6OnNB4ihR1taVNP5vL7_E756gS7bQRWaX-0uDmnbVaNgLhmcHtx0SBEdRRtMuY94l-EIPU4DgnhAzudnkRV5ARlsA0c28fopDT-TyodmTwwdAtlOYJRWuwdswibKL5nBdRL2MDoo8WBuocDg";
 
 const App = () => {
   const [isFetching, setIsFetching] = useState(false);
@@ -118,32 +116,70 @@ const App = () => {
 
       setSearchInput("");
 
-      // const authHref = getAuthorizationUrl({
-      //   scopes: "playlist-modify-public",
-      //   client_id: apiKeys.spotify.client_id,
-      //   redirect_uri: "http://localhost:3000/callback",
-      //   response_type: "code",
-      // });
+      const authHref = getAuthorizationUrl({
+        scopes: "playlist-modify-public",
+        client_id: apiKeys.spotify.client_id,
+        redirect_uri: "http://localhost:3000/callback",
+        response_type: "code",
+      });
 
-      // const a = document.createElement("a");
-      // a.href = authHref;
-      // a.target = "_blank";
-      // a.click();
+      const a = document.createElement("a");
+      a.href = authHref;
+      a.target = "_blank";
+      a.click();
+
+      console.log("evooooo");
+
+      let isPreparingFile = true;
+      let attempts = 0;
+
+      while (isPreparingFile && attempts <= 100) {
+        const res = await fetch("http://localhost:3000/isFileReady");
+        const status = res.status;
+        console.log(res.status);
+        attempts++;
+
+        if (res.status === 200) break;
+      }
+
+      const codeRes = await fetch("http://localhost:3000/code");
+      const data = await codeRes.json();
+
+      const tokenRes = await fetch("http://localhost:3000/token", {
+        method: "POST",
+        body: JSON.stringify({
+          client_id: apiKeys.spotify.client_id,
+          client_secret: apiKeys.spotify.client_secret,
+          redirect_uri: "http://localhost:3000/callback",
+          code: data.code,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const tokenREADY = await tokenRes.json();
+
+      console.log(tokenREADY);
+
+      // console.log("code", data);
 
       // const token = await getAccessTokenForPlaylist({
-      //   code,
+      //   code: data.code,
       //   client_id: apiKeys.spotify.client_id,
-      //   client_secret: apiKeys.spotify.client_secrete,
+      //   client_secret: apiKeys.spotify.client_secret,
       //   redirect_uri: "http://localhost:3000/callback",
       // });
 
+      // console.log("token", token);
+
       // const profile = await getUserProfile({
-      //   access_token: accessTokens.spotify,
+      //   access_token: token,
       //   isFetching,
       //   setIsFetching,
       // });
 
-      console.log("token", token);
+      // console.log("token", profile);
     }
   };
 
@@ -164,6 +200,14 @@ const App = () => {
       access_token: accessTokens.spotify,
       user_id,
       playlist_name,
+    });
+  };
+
+  const delayMS = (ms) => {
+    return new Promise((res) => {
+      setTimeout(() => {
+        res();
+      }, ms);
     });
   };
 
