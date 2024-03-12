@@ -128,8 +128,6 @@ const App = () => {
       a.target = "_blank";
       a.click();
 
-      console.log("evooooo");
-
       let isPreparingFile = true;
       let attempts = 0;
 
