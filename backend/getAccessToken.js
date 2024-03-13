@@ -16,8 +16,8 @@ async function getAccessToken({client_id, client_secret, redirect_uri, code}) {
     },
     body,
   });
-  console.log(response.status)
   const data = await response.json();
+
   return data.access_token;
 }
 
