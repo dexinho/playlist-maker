@@ -21,7 +21,7 @@ const addTracksToPlaylist = async ({
 
   const response = await fecthData({ url, options, isFetching, setIsFetching });
 
-  return response.ok;
+  return response;
 };
 
 export default addTracksToPlaylist;
