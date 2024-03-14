@@ -9,6 +9,7 @@ const getUserProfile = async ({ access_token, isFetching, setIsFetching }) => {
         Authorization: `Bearer ${access_token}`,
       },
     };
+
     
     const res = await fecthData({ url, options, isFetching, setIsFetching });
 
