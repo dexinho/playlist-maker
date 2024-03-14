@@ -200,10 +200,9 @@ const App = () => {
       response_type: "code",
     });
 
-    const a = document.createElement("a");
-    a.href = authHref;
-    a.target = "_blank";
-    a.click();
+    window.open(authHref);
+
+    console.log(window.location);
 
     // const aCode = await getSpotifyCodeForAccess();
     // const aToken = await getAccessToken.search();
@@ -262,6 +261,8 @@ const App = () => {
     setPlaylist([]);
     setIsAccessGranted(false);
     setSelectedTrackIds({});
+    setSearchInput("");
+    setFetchedTracks([]);
   };
 
   useEffect(() => {
@@ -278,7 +279,7 @@ const App = () => {
             "linear-gradient(318deg, rgba(136,136,136,1) 6%, rgba(230,218,139,1) 66%)",
         }}
       ></Box>
-      <Box className='flex flex-row gap-4 justify-between '>
+      <Box className="flex flex-row gap-4 justify-between ">
         {isAccessGranted && (
           <Box>
             <FontAwesomeIcon
