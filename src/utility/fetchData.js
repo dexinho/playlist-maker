@@ -1,15 +1,15 @@
 const fecthData = async ({ isFetching, setIsFetching, url, options }) => {
-  if (isFetching) return;
+  if (isFetching.state) return;
 
   try {
-    setIsFetching(true);
+    setIsFetching((prevF) => ({ ...prevF, [isFetching.name]: true }));
     const response = await fetch(url, options);
 
     return response;
   } catch (err) {
     console.log(err);
   } finally {
-    setIsFetching(false);
+    setIsFetching((prevF) => ({ ...prevF, [isFetching.name]: false }));
   }
 };
 
