@@ -2,7 +2,7 @@ import { Button, Box, TextField } from "@mui/material";
 import React, { useRef } from "react";
 
 const Playlist = ({ playlist, onTrackDelete, onPlaylistUpload }) => {
-  const playlistNameRef = useRef(null);
+  const playlistNameInputRef = useRef(null);
 
   if (playlist.length < 1) return <div>No tracks selected.</div>;
 
@@ -11,13 +11,13 @@ const Playlist = ({ playlist, onTrackDelete, onPlaylistUpload }) => {
   };
 
   const handlePlaylistUpload = () => {
-    onPlaylistUpload(playlistNameRef.current.value);
+    onPlaylistUpload({ playlist_name: playlistNameInputRef.current.value });
   };
 
   return (
     <Box className="flex flex-col gap-4 p-4">
       <TextField
-        ref={playlistNameRef}
+        inputRef={playlistNameInputRef}
         placeholder="PLAYLIST NAME"
         className="w-full"
       ></TextField>
