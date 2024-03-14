@@ -202,8 +202,6 @@ const App = () => {
 
     window.open(authHref);
 
-    console.log(window.location);
-
     // const aCode = await getSpotifyCodeForAccess();
     // const aToken = await getAccessToken.search();
 
