@@ -1,6 +1,8 @@
 import fecthData from "./fetchData";
 
-async function createPlaylist({
+const createPlaylist = {};
+
+async function createSpotifyPlaylist({
   accessToken,
   user_id,
   playlist_name,
@@ -35,5 +37,7 @@ async function createPlaylist({
     console.log(err);
   }
 }
+
+createPlaylist.spotify = createSpotifyPlaylist;
 
 export default createPlaylist;

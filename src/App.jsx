@@ -20,7 +20,6 @@ import userProfile from "./utility/userProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
 
-
 const App = () => {
   const [isFetching, setIsFetching] = useState({
     trackSearch: false,
@@ -121,7 +120,7 @@ const App = () => {
     );
 
     try {
-      const playlistId = await createPlaylist({
+      const playlistId = await createPlaylist.spotify({
         user_id: userIds.spotify,
         playlist_name,
         accessToken: accessTokens.spotify_access,
@@ -152,7 +151,7 @@ const App = () => {
     let clientSecret = clientSecretInputRef.current.value;
 
     if (!clientId || !clientSecret) {
-      const fetchedApiKeys = await getApiKeys({
+      const fetchedApiKeys = await getApiKeys.spotify({
         isFetching: {
           name: "apiKeys",
           state: isFetching.apiKeys,
