@@ -1,11 +1,16 @@
 import fecthData from "./fetchData";
 
-const searchTracks = async ({
-  url,
+const searchTracks = {};
+
+const searchTracksSpotify = async ({
+  searchInput,
   accessToken,
   isFetching,
   setIsFetching,
 }) => {
+  const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+    searchInput
+  )}&type=track`;
   const options = {
     method: "GET",
     headers: {
@@ -18,9 +23,11 @@ const searchTracks = async ({
   if (res.ok) {
     const data = await res.json();
     console.log(data.tracks.items);
-    
+
     return data.tracks.items;
   }
 };
+
+searchTracks.spotify = searchTracksSpotify;
 
 export default searchTracks;

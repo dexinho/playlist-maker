@@ -12,12 +12,14 @@ import getApiKeys from "./utility/getApiKeys";
 import getAccessToken from "./utility/getAccessToken";
 import searchTracks from "./utility/searchTracks";
 import createPlaylist from "./utility/createPlaylist";
-import getAuthorizationUrl from "./utility/getAuthorizationUrl";
-import getUserProfile from "./utility/getUserProfile";
+import authorizationUrl from "./utility/authorizationUrl";
 import addTracksToPlaylist from "./utility/addTracksToPlaylist";
 import delayMS from "./utility/delayMS";
+import getCode from "./utility/getCode";
+import userProfile from "./utility/userProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
+
 
 const App = () => {
   const [isFetching, setIsFetching] = useState({
@@ -40,8 +42,8 @@ const App = () => {
   const clientIdInputRef = useRef(null);
 
   useEffect(() => {
-    // const client_id = "404cae06b37c4e3897ab0dbfec5bd047";
-    // const client_secret = "d3b356e7507a4cc5a44fa8fe9942f64c"
+    // const clientId = "404cae06b37c4e3897ab0dbfec5bd047";
+    // const clientSecret = "d3b356e7507a4cc5a44fa8fe9942f64c"
     // const tidalAccessTokenSettings = {
     //   url: `https://auth.tidal.com/v1/oauth2/token`,
     //   options: {
@@ -50,8 +52,8 @@ const App = () => {
     //       "Content-Type": "application/x-www-form-urlencoded",
     //     },
     //     body: new URLSearchParams({
-    //       client_id: process.env["TIDAL_CLIENT_ID"],
-    //       client_secret: process.env["TIDAL_CLIENT_SECRET"],
+    //       clientId: process.env["TIDAL_clientId"],
+    //       clientSecret: process.env["TIDAL_clientSecret"],
     //       grant_type: "client_credentials",
     //     }),
     //   },
@@ -69,11 +71,9 @@ const App = () => {
 
   const handleSearchKeyDown = async (e) => {
     if (e.key === "Enter") {
-      const foundTracks = await searchTracks({
-        url: `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-          searchInput
-        )}&type=track`,
-        accessToken: accessTokens.spotify_search,
+      const spotifyFoundTracks = await searchTracks.spotify({
+        searchInput,
+        accessToken: accessTokens.spotifySearch,
         isFetching: {
           name: "trackSearch",
           state: isFetching.trackSearch,
@@ -82,7 +82,7 @@ const App = () => {
       });
 
       setFetchedTracks(
-        foundTracks.reduce(
+        spotifyFoundTracks.reduce(
           (acc, item) => [
             ...acc,
             {
@@ -122,9 +122,9 @@ const App = () => {
 
     try {
       const playlistId = await createPlaylist({
-        access_token: accessTokens.spotify_access,
         user_id: userIds.spotify,
         playlist_name,
+        accessToken: accessTokens.spotify_access,
         isFetching: {
           name: "createPlaylist",
           state: isFetching.createPlaylist,
@@ -133,9 +133,9 @@ const App = () => {
       });
 
       await addTracksToPlaylist({
-        access_token: accessTokens.spotify_access,
         playlist_id: playlistId,
         track_URIs: trackURIs,
+        accessToken: accessTokens.spotify_access,
         isFetching: {
           name: "trackUpload",
           state: isFetching.trackUpload,
@@ -153,7 +153,6 @@ const App = () => {
 
     if (!clientId || !clientSecret) {
       const fetchedApiKeys = await getApiKeys({
-        url: "http://localhost:3000/api/spotify",
         isFetching: {
           name: "apiKeys",
           state: isFetching.apiKeys,
@@ -161,26 +160,18 @@ const App = () => {
         setIsFetching,
       });
 
-      setApiKeys(fetchedApiKeys);
+      clientId = fetchedApiKeys.spotify.clientId;
+      clientSecret = fetchedApiKeys.spotify.clientSecret;
 
-      clientId = fetchedApiKeys.spotify.client_id;
-      clientSecret = fetchedApiKeys.spotify.client_secret;
+      setApiKeys((prevA) => ({
+        ...prevA,
+        spotify: { clientId, clientSecret },
+      }));
     }
 
-    const spotifySearchAccessTokenSettings = {
-      url: `https://accounts.spotify.com/api/token`,
-      options: {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
-      },
-    };
-
-    const spotitfySearchAccessToken = await getAccessToken.search({
-      url: spotifySearchAccessTokenSettings.url,
-      options: spotifySearchAccessTokenSettings.options,
+    const spotitfySearchAccessToken = await getAccessToken.spotify.search({
+      clientId,
+      clientSecret,
       isFetching: {
         name: "apiKeys",
         state: isFetching.apiKeys,
@@ -190,20 +181,17 @@ const App = () => {
 
     setAccessTokens((prevT) => ({
       ...prevT,
-      spotify_search: spotitfySearchAccessToken,
+      spotifySearch: spotitfySearchAccessToken,
     }));
 
-    const authHref = getAuthorizationUrl({
+    const authHref = authorizationUrl.spotify({
       scopes: "playlist-modify-public",
-      client_id: clientId,
+      clientId,
       redirect_uri: "http://localhost:3000/callback",
       response_type: "code",
     });
 
     window.open(authHref);
-
-    // const aCode = await getSpotifyCodeForAccess();
-    // const aToken = await getAccessToken.search();
 
     let isPreparingFile = true;
     let attempts = 0;
@@ -217,26 +205,27 @@ const App = () => {
         if (res.status === 200) break;
       }
 
-      const codeRes = await fetch("http://localhost:3000/code");
-      const codeData = await codeRes.json();
-
-      const tokenRes = await fetch("http://localhost:3000/token", {
-        method: "POST",
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          redirect_uri: "http://localhost:3000/callback",
-          code: codeData.code,
-        }),
-        headers: {
-          "Content-Type": "application/json",
+      const spotifyAccessCode = await getCode.spotify.access({
+        isFetching: {
+          name: "apiKeys",
+          isFetching: isFetching.apiKeys,
         },
+        setIsFetching,
       });
 
-      const tokenData = await tokenRes.json();
+      const spotifyAccessTokenAccess = await getAccessToken.spotify.access({
+        clientId,
+        clientSecret,
+        spotifyAccessCode,
+        isFetching: {
+          name: "apiKeys",
+          isFetching: isFetching.apiKeys,
+        },
+        setIsFetching,
+      });
 
-      const profile = await getUserProfile({
-        access_token: tokenData.token,
+      const profile = await userProfile.spotify({
+        accessToken: spotifyAccessTokenAccess,
         isFetching: {
           name: "userProfile",
           state: isFetching.userProfile,
@@ -246,7 +235,7 @@ const App = () => {
 
       setAccessTokens((prevA) => ({
         ...prevA,
-        spotify_access: tokenData.token,
+        spotify_access: spotifyAccessTokenAccess,
       }));
       setUserIds((prevU) => ({ ...prevU, spotify: profile.id }));
       setIsAccessGranted(true);

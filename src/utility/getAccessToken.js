@@ -1,13 +1,25 @@
 import fecthData from "./fetchData";
 
-const getAccessToken = {};
+const getAccessToken = {
+  spotify: {},
+  tidal: {},
+};
 
-const getAccessTokenForSearch = async ({
-  url,
-  options,
+const spotifyAccessTokenSearch = async ({
+  clientId,
+  clientSecret,
   isFetching,
   setIsFetching,
 }) => {
+  console.log(clientId, clientSecret)
+  const url = `https://accounts.spotify.com/api/token`;
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
+  };
   try {
     const res = await fecthData({
       url,
@@ -19,7 +31,7 @@ const getAccessTokenForSearch = async ({
     if (res.ok) {
       const data = await res.json();
 
-      console.log(data);
+      console.log(data)
 
       return data.access_token;
     }
@@ -28,39 +40,42 @@ const getAccessTokenForSearch = async ({
   }
 };
 
-async function getAccessTokenForPlaylist({
-  code,
-  client_id,
-  client_secret,
-  redirect_uri,
-}) {
-  const auth = base64Encode(`${client_id}:${client_secret}`);
+const spotifyAccessTokenAccess = async ({
+  clientId,
+  clientSecret,
+  spotifyAccessCode,
+  isFetching,
+  setIsFetching,
+}) => {
+  try {
+    const url = "http://localhost:3000/token";
+    const options = {
+      method: "POST",
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: "http://localhost:3000/callback",
+        code: spotifyAccessCode,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-  const params = new URLSearchParams();
-  params.append("grant_type", "authorization_code");
-  params.append("code", code);
-  params.append("redirect_uri", redirect_uri);
-  const body = params.toString();
+    const res = await fecthData({ url, options, isFetching, setIsFetching });
 
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      Authorization: 1,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: 1,
-  });
+    if (res.ok) {
+      const data = await res.json();
 
-  const data = await response.json();
-  return data.access_token;
-}
+      console.log(data);
+      return data.token;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-function base64Encode(str) {
-  const encodedString = btoa(str);
-  return encodedString;
-}
-
-getAccessToken.search = getAccessTokenForSearch;
-getAccessToken.access = getAccessTokenForPlaylist;
+getAccessToken.spotify.search = spotifyAccessTokenSearch;
+getAccessToken.spotify.access = spotifyAccessTokenAccess;
 
 export default getAccessToken;

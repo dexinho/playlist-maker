@@ -1,7 +1,7 @@
 import fecthData from "./fetchData";
 
 async function createPlaylist({
-  access_token,
+  accessToken,
   user_id,
   playlist_name,
   isFetching,
@@ -12,7 +12,7 @@ async function createPlaylist({
     const options = {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${access_token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

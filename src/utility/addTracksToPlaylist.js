@@ -1,7 +1,7 @@
 import fecthData from "./fetchData";
 
 const addTracksToPlaylist = async ({
-  access_token,
+  accessToken,
   playlist_id,
   track_URIs,
   isFetching,
@@ -11,7 +11,7 @@ const addTracksToPlaylist = async ({
   const options = {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${access_token}`,
+      Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

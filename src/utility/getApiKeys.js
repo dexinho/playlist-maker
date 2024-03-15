@@ -1,7 +1,8 @@
 import fecthData from "./fetchData";
 
-const getApiKeys = async ({ url, isFetching, setIsFetching }) => {
+const getApiKeys = async ({ isFetching, setIsFetching }) => {
   try {
+    const url = "http://localhost:3000/api/spotify";
     const res = await fecthData({ url, isFetching, setIsFetching });
 
     if (res.ok) {
